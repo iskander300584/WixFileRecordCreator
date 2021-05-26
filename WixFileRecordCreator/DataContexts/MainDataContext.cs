@@ -1,7 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Runtime.CompilerServices;
+using System.Windows;
+using WixFileRecordCreator.DataModels;
 
 
 namespace WixFileRecordCreator.DataContexts
@@ -181,13 +184,21 @@ namespace WixFileRecordCreator.DataContexts
         }
 
 
-        private List<string> _usedExtensions = new List<string>();
+        private ObservableCollection<string> _usedExtensions = new ObservableCollection<string>();
         /// <summary>
         /// Используемые расширения файлов
         /// </summary>
-        public List<string> UsedExtensions
+        public ObservableCollection<string> UsedExtensions
         {
             get => _usedExtensions;
+            private set
+            {
+                if(_usedExtensions != value)
+                {
+                    _usedExtensions = value;
+                    OnPropertyChanged();
+                }
+            }
         }
 
 
@@ -244,8 +255,47 @@ namespace WixFileRecordCreator.DataContexts
             }
         }
 
+
+        private ObservableCollection<FileRecord> _fileRecords = new ObservableCollection<FileRecord>();
+        /// <summary>
+        /// Список записей о файлах
+        /// </summary>
+        public ObservableCollection<FileRecord> FileRecords
+        {
+            get => _fileRecords;
+            private set
+            {
+                if(_fileRecords != value)
+                {
+                    _fileRecords = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+
+        private string _resultText = string.Empty;
+        /// <summary>
+        /// Результирующий текст
+        /// </summary>
+        public string ResultText
+        {
+            get => _resultText;
+            private set
+            {
+                if(_resultText != value)
+                {
+                    _resultText = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+
         #endregion
 
+
+        #region Методы
 
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -268,5 +318,172 @@ namespace WixFileRecordCreator.DataContexts
             else
                 ResultPath = string.Empty;
         }
+
+
+        /// <summary>
+        /// Удалить выбранное расширение
+        /// </summary>
+        public void DeleteExtension()
+        {
+            if(SelectedExtension != null && !AreExtensionsLocked)
+            {
+                UsedExtensions.Remove(SelectedExtension);
+                SelectedExtension = null;
+            }
+        }
+
+
+        /// <summary>
+        /// Добавить расширение в список используемых расширений
+        /// </summary>
+        public void AddExtension()
+        {
+            if (AddableExtension != null && AddableExtension.Trim() != "" && !AreExtensionsLocked)
+            {
+                if (AddableExtension.Trim()[0] != '.')
+                    AddableExtension = "." + AddableExtension.Trim().ToLower();
+                else
+                    AddableExtension = AddableExtension.Trim();
+
+
+                if (!UsedExtensions.Contains(AddableExtension))
+                {
+                    UsedExtensions.Add(AddableExtension);
+                    AddableExtension = string.Empty;
+                }
+                else
+                    MessageBox.Show("Такое расширение уже добавлено", "Внимание", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+
+        /// <summary>
+        /// Выбрать папку
+        /// </summary>
+        public void SelectFolder()
+        {
+            System.Windows.Forms.FolderBrowserDialog folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog()
+            {
+                SelectedPath = FolderName
+            };
+
+            if (folderBrowserDialog.ShowDialog() != System.Windows.Forms.DialogResult.OK)
+                return;
+
+            FolderName = folderBrowserDialog.SelectedPath;
+        }
+
+
+        /// <summary>
+        /// Загрузить список расширений из папки
+        /// </summary>
+        public void LoadExtensionsFromFolder()
+        {
+            if(!AreExtensionsLocked && FolderName != "")
+            {
+                if(!Directory.Exists(FolderName))
+                {
+                    MessageBox.Show("Директория не найдена", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                string[] files = Directory.GetFiles(FolderName);
+
+                if(files == null || files.Length == 0)
+                {
+                    MessageBox.Show("Ошибка получения списка файлов из директории", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                UsedExtensions = new ObservableCollection<string>();
+
+                foreach(string fileName in files)
+                {
+                    FileInfo fileInfo = new FileInfo(fileName);
+
+                    if (!UsedExtensions.Contains(fileInfo.Extension.ToLower()))
+                        UsedExtensions.Add(fileInfo.Extension.ToLower());
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Получить информацию о файлах
+        /// </summary>
+        public void GetFileRecords()
+        {
+            if (FolderName == "" || UsedExtensions == null || UsedExtensions.Count == 0)
+                return;
+
+            if (!Directory.Exists(FolderName))
+            {
+                MessageBox.Show("Директория не найдена", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            string[] files = Directory.GetFiles(FolderName);
+
+            if (files == null || files.Length == 0)
+            {
+                MessageBox.Show("Ошибка получения списка файлов из директории", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            FileRecords = new ObservableCollection<FileRecord>();
+            ResultText = string.Empty;
+
+            string _text = string.Empty;
+
+            foreach(string fileName in files)
+            {
+                FileInfo fileInfo = new FileInfo(fileName);
+
+                if (!UsedExtensions.Contains(fileInfo.Extension.ToLower()))
+                    continue;
+
+                FileRecord fileRecord = new FileRecord()
+                {
+                    KeyPath = this.KeyPath,
+                    Vital = this.Vital,
+                    Checksum = this.Checksum,
+                    IdPrefix = this.IdPrefix,
+                    Path = this.ResultPath,
+                    FileName = fileInfo.Name
+                };
+
+                FileRecords.Add(fileRecord);
+
+                _text += fileRecord.ResultString + "\n";
+            }
+
+            ResultText = _text.Trim();
+        }
+
+
+        /// <summary>
+        /// Очистить данные
+        /// </summary>
+        public void ClearAll()
+        {
+            FolderName = string.Empty;
+            IdPrefix = string.Empty;
+            UseIdPrefix = false;
+
+            FolderIsVariable = false;
+            VariableName = string.Empty;
+
+            FileRecords = new ObservableCollection<FileRecord>();
+            ResultText = string.Empty;
+
+            if(!AreExtensionsLocked)
+            {
+                UsedExtensions = new ObservableCollection<string>();
+                SelectedExtension = null;
+                AddableExtension = string.Empty;
+            }
+        }
+
+        #endregion
     }
 }

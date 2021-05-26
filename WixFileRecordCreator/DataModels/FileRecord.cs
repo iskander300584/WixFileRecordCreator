@@ -154,7 +154,7 @@ namespace WixFileRecordCreator.DataModels
 
 
         /// <summary>
-        /// Получение результирующей строки  TODO
+        /// Получение результирующей строки
         /// </summary>
         private void GetResultString()
         {

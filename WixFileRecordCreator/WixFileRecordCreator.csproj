@@ -34,9 +34,13 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>application.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -96,6 +100,26 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\application.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\cancel_gray.png" />
+    <Resource Include="Images\cancel_small.png" />
+    <Resource Include="Images\download.png" />
+    <Resource Include="Images\download_gray.png" />
+    <Resource Include="Images\folder.png" />
+    <Resource Include="Images\folder_gray.png" />
+    <Resource Include="Images\in_progress.png" />
+    <Resource Include="Images\in_progress_gray.png" />
+    <Resource Include="Images\plus simple.png" />
+    <Resource Include="Images\plus_gray simple.png" />
+    <Resource Include="Images\refresh double.png" />
+    <Resource Include="Images\refresh_gray big.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="application.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

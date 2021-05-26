@@ -5,8 +5,248 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WixFileRecordCreator"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
+        Title="Список файлов для WixSetup" Height="450" Width="800" ResizeMode="NoResize">
+
+    <Window.CommandBindings>
+        <CommandBinding Command="local:MainWindow.SelectFolderCommand" Executed="SelectFolder_Execute" CanExecute="SelectFolder_CanExecute" />
+
+        <CommandBinding Command="local:MainWindow.AddExtensionCommand" Executed="AddExtension_Execute" CanExecute="AddExtension_CanExecute" />
+
+        <CommandBinding Command="local:MainWindow.DeleteExtensionCommand" Executed="DeleteExtension_Execute" CanExecute="DeleteExtension_CanExecute" />
+
+        <CommandBinding Command="local:MainWindow.LoadExtensionsCommand" Executed="LoadExtensions_Execute" CanExecute="LoadExtensions_CanExecute" />
+
+        <CommandBinding Command="local:MainWindow.GetResultCommand" Executed="GetResult_Execute" CanExecute="GetResult_CanExecute" />
+
+        <CommandBinding Command="local:MainWindow.ClearDataCommand" Executed="ClearData_Execute" CanExecute="ClearData_CanExecute" />
+    </Window.CommandBindings>
+
+<Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Настройки -->
+        <GroupBox Margin="5,5,2,2" >
+            <GroupBox.Header>
+                <TextBlock Text="Настройки" FontWeight="SemiBold" />
+            </GroupBox.Header>
+            
+            <StackPanel Orientation="Vertical" Margin="5">
+                <!-- Путь к папке -->
+                <TextBlock Text="Путь к папке с файлами" />
+                <DockPanel Margin="0,2,0,0" >
+                    <Button Width="20" Height="20" Background="GhostWhite" DockPanel.Dock="Right" Command="local:MainWindow.SelectFolderCommand" ToolTip="Выбрать папку" >
+                        <Button.Style>
+                            <Style>
+                                <Style.Triggers>
+                                    <Trigger Property="Button.IsEnabled" Value="True">
+                                        <Setter Property="Button.Content">
+                                            <Setter.Value>
+                                                <Image Source="Images\folder.png" />
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                    <Trigger Property="Button.IsEnabled" Value="False">
+                                        <Setter Property="Button.Content">
+                                            <Setter.Value>
+                                                <Image Source="Images\folder_gray.png" />
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <TextBox Text="{Binding FolderName, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" Margin="0,0,5,0" />
+                </DockPanel>
+
+                <!-- Переменная для пути -->
+                <DockPanel Margin="0,10,0,0" >
+                    <CheckBox Content="Путь задается переменной" IsChecked="{Binding FolderIsVariable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox Text="{Binding VariableName, Mode=OneWayToSource}" IsEnabled="{Binding FolderIsVariable, UpdateSourceTrigger=PropertyChanged}" Margin="5,0,0,0" />
+                </DockPanel>
+
+                <!-- Флаги -->
+                <DockPanel Margin="0,10,0,0" LastChildFill="False" >
+                    <CheckBox Content="KeyPath" IsChecked="{Binding KeyPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <CheckBox Content="Checksum" IsChecked="{Binding Checksum, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0,0,0" />
+
+                    <CheckBox Content="Vital" IsChecked="{Binding Vital, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0,0,0" />
+                </DockPanel>
+                
+                <!-- Префикс -->
+                <DockPanel Margin="0,10,0,0" >
+                    <CheckBox Content="Использовать префикс Id" IsChecked="{Binding UseIdPrefix, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox Text="{Binding IdPrefix, Mode=OneWayToSource}" IsEnabled="{Binding UseIdPrefix, UpdateSourceTrigger=PropertyChanged}" Margin="5,0,0,0" />
+                </DockPanel>
+
+            </StackPanel>
+        </GroupBox>
+
+        <!-- Расширения -->
+        <GroupBox Margin="2,5,5,2" Grid.Column="1" >
+            <GroupBox.Header>
+                <TextBlock Text="Расширения" FontWeight="SemiBold" />
+            </GroupBox.Header>
+
+            <DockPanel Margin="5" >
+                <!-- Добавить расширение -->
+                <DockPanel DockPanel.Dock="Top" >
+                    <Button Width="20" Height="20" Background="GhostWhite" DockPanel.Dock="Right" Command="local:MainWindow.AddExtensionCommand" ToolTip="Добавить расширение" >
+                        <Button.Style>
+                            <Style>
+                                <Style.Triggers>
+                                    <Trigger Property="Button.IsEnabled" Value="True">
+                                        <Setter Property="Button.Content">
+                                            <Setter.Value>
+                                                <Image Source="Images\plus simple.png" />
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                    <Trigger Property="Button.IsEnabled" Value="False">
+                                        <Setter Property="Button.Content">
+                                            <Setter.Value>
+                                                <Image Source="Images\plus_gray simple.png" />
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <TextBox Text="{Binding AddableExtension, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="{Binding AreExtensionsLocked, UpdateSourceTrigger=PropertyChanged}"  Margin="0,0,5,0" />
+                </DockPanel>
+               
+
+                <DockPanel DockPanel.Dock="Bottom" Margin="0,5,0,0">
+                    <!-- Загрузка из папки -->
+                    <Button Width="20" Height="20" Background="GhostWhite" DockPanel.Dock="Left" Command="local:MainWindow.LoadExtensionsCommand" ToolTip="Загрузить список расширений из папки" >
+                        <Button.Style>
+                            <Style>
+                                <Style.Triggers>
+                                    <Trigger Property="Button.IsEnabled" Value="True">
+                                        <Setter Property="Button.Content">
+                                            <Setter.Value>
+                                                <Image Source="Images\download.png" />
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                    <Trigger Property="Button.IsEnabled" Value="False">
+                                        <Setter Property="Button.Content">
+                                            <Setter.Value>
+                                                <Image Source="Images\download_gray.png" />
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <!-- Удалить расширение -->
+                    <Button Width="20" Height="20" Background="GhostWhite" DockPanel.Dock="Left" Margin="5,0,5,0" Command="local:MainWindow.DeleteExtensionCommand" ToolTip="Удалить расширение" >
+                        <Button.Style>
+                            <Style>
+                                <Style.Triggers>
+                                    <Trigger Property="Button.IsEnabled" Value="True">
+                                        <Setter Property="Button.Content">
+                                            <Setter.Value>
+                                                <Image Source="Images\cancel_small.png" />
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                    <Trigger Property="Button.IsEnabled" Value="False">
+                                        <Setter Property="Button.Content">
+                                            <Setter.Value>
+                                                <Image Source="Images\cancel_gray.png" />
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <!-- Заблокировать -->
+                    <CheckBox Content="Заблокировать список" IsChecked="{Binding AreExtensionsLocked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0,0,0" VerticalContentAlignment="Center" />
+                </DockPanel>
+
+                <!-- Список расширений -->
+                <ListView ItemsSource="{Binding UsedExtensions, UpdateSourceTrigger=PropertyChanged }" DockPanel.Dock="Top" Margin="0,5,0,0" ScrollViewer.VerticalScrollBarVisibility="Auto" SelectedItem="{Binding SelectedExtension, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >
+                    
+                </ListView>
+            </DockPanel>
+        </GroupBox>
+
+        <GroupBox Margin="5,0,5,5" Grid.Row="1" Grid.ColumnSpan="2" >
+            <GroupBox.Header>
+                <TextBlock Text="Результат" FontWeight="SemiBold" />
+            </GroupBox.Header>
+
+            <DockPanel Margin="5">
+                <!-- Управляющие кнопки -->
+                <DockPanel DockPanel.Dock="Top" LastChildFill="False" >
+                    <!-- Очистить данные -->
+                    <Button Width="20" Height="20" Background="GhostWhite" DockPanel.Dock="Right" Command="local:MainWindow.ClearDataCommand" ToolTip="Очистить данные" >
+                        <Button.Style>
+                            <Style>
+                                <Style.Triggers>
+                                    <Trigger Property="Button.IsEnabled" Value="True">
+                                        <Setter Property="Button.Content">
+                                            <Setter.Value>
+                                                <Image Source="Images\refresh double.png" />
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                    <Trigger Property="Button.IsEnabled" Value="False">
+                                        <Setter Property="Button.Content">
+                                            <Setter.Value>
+                                                <Image Source="Images\refresh_gray big.png" />
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <!-- Выполнить -->
+                    <Button Width="20" Height="20" Background="GhostWhite" DockPanel.Dock="Right" Margin="0,0,5,0" Command="local:MainWindow.GetResultCommand" ToolTip="Получить данные" >
+                        <Button.Style>
+                            <Style>
+                                <Style.Triggers>
+                                    <Trigger Property="Button.IsEnabled" Value="True">
+                                        <Setter Property="Button.Content">
+                                            <Setter.Value>
+                                                <Image Source="Images\in_progress.png" />
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                    <Trigger Property="Button.IsEnabled" Value="False">
+                                        <Setter Property="Button.Content">
+                                            <Setter.Value>
+                                                <Image Source="Images\in_progress_gray.png" />
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </DockPanel>
+
+                <!-- Результат -->
+                <TextBox Text="{Binding ResultText, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" DockPanel.Dock="Top" ScrollViewer.VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" Margin="0,5,0,0" />
+            </DockPanel>
+        </GroupBox>
     </Grid>
 </Window>
