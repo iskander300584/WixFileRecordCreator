@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31313.79
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WixFileRecordCreator", "WixFileRecordCreator\WixFileRecordCreator.csproj", "{C0AD7EF4-97CD-40A0-BEDC-2DB19CA9097D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{4204C704-B30B-4092-94DA-D3939F1EA850}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C0AD7EF4-97CD-40A0-BEDC-2DB19CA9097D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0AD7EF4-97CD-40A0-BEDC-2DB19CA9097D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0AD7EF4-97CD-40A0-BEDC-2DB19CA9097D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0AD7EF4-97CD-40A0-BEDC-2DB19CA9097D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4204C704-B30B-4092-94DA-D3939F1EA850}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4204C704-B30B-4092-94DA-D3939F1EA850}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4204C704-B30B-4092-94DA-D3939F1EA850}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4204C704-B30B-4092-94DA-D3939F1EA850}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1AF5B810-C338-4009-8B2F-ABE6C60ABA89}
+	EndGlobalSection
+EndGlobal
