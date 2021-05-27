@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WixFileRecordCreator"
         mc:Ignorable="d"
-        Title="Список файлов для WixSetup" Height="450" Width="800" ResizeMode="NoResize">
+        Title="Список файлов для WixSetup" Height="450" Width="800" MaxWidth="1600" MinWidth="600" MinHeight="450" ResizeMode="CanResize">
 
     <Window.CommandBindings>
         <CommandBinding Command="local:MainWindow.SelectFolderCommand" Executed="SelectFolder_Execute" CanExecute="SelectFolder_CanExecute" />
@@ -19,6 +19,8 @@
         <CommandBinding Command="local:MainWindow.GetResultCommand" Executed="GetResult_Execute" CanExecute="GetResult_CanExecute" />
 
         <CommandBinding Command="local:MainWindow.ClearDataCommand" Executed="ClearData_Execute" CanExecute="ClearData_CanExecute" />
+
+        <CommandBinding Command="local:MainWindow.ClearResultCommand" Executed="ClearResult_Execute" CanExecute="ClearResult_CanExecute" />
     </Window.CommandBindings>
 
 <Grid>
@@ -70,7 +72,7 @@
                 <!-- Переменная для пути -->
                 <DockPanel Margin="0,10,0,0" >
                     <CheckBox Content="Путь задается переменной" IsChecked="{Binding FolderIsVariable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                    <TextBox Text="{Binding VariableName, Mode=OneWayToSource}" IsEnabled="{Binding FolderIsVariable, UpdateSourceTrigger=PropertyChanged}" Margin="5,0,0,0" />
+                    <TextBox Text="{Binding VariableName, Mode=TwoWay}" IsEnabled="{Binding FolderIsVariable, UpdateSourceTrigger=PropertyChanged}" Margin="5,0,0,0" />
                 </DockPanel>
 
                 <!-- Флаги -->
@@ -85,7 +87,7 @@
                 <!-- Префикс -->
                 <DockPanel Margin="0,10,0,0" >
                     <CheckBox Content="Использовать префикс Id" IsChecked="{Binding UseIdPrefix, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                    <TextBox Text="{Binding IdPrefix, Mode=OneWayToSource}" IsEnabled="{Binding UseIdPrefix, UpdateSourceTrigger=PropertyChanged}" Margin="5,0,0,0" />
+                    <TextBox Text="{Binding IdPrefix, Mode=TwoWay}" IsEnabled="{Binding UseIdPrefix, UpdateSourceTrigger=PropertyChanged}" Margin="5,0,0,0" />
                 </DockPanel>
 
             </StackPanel>
@@ -181,12 +183,13 @@
                 </DockPanel>
 
                 <!-- Список расширений -->
-                <ListView ItemsSource="{Binding UsedExtensions, UpdateSourceTrigger=PropertyChanged }" DockPanel.Dock="Top" Margin="0,5,0,0" ScrollViewer.VerticalScrollBarVisibility="Auto" SelectedItem="{Binding SelectedExtension, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >
+                <ListView x:Name="listView" ItemsSource="{Binding UsedExtensions, UpdateSourceTrigger=PropertyChanged }" DockPanel.Dock="Top" Margin="0,5,0,0" ScrollViewer.VerticalScrollBarVisibility="Auto" SelectedItem="{Binding SelectedExtension, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectionMode="Extended" >
                     
                 </ListView>
             </DockPanel>
         </GroupBox>
 
+        <!-- Результат -->
         <GroupBox Margin="5,0,5,5" Grid.Row="1" Grid.ColumnSpan="2" >
             <GroupBox.Header>
                 <TextBlock Text="Результат" FontWeight="SemiBold" />
@@ -219,8 +222,32 @@
                         </Button.Style>
                     </Button>
 
+                    <!-- Очистить результат -->
+                    <Button Width="20" Height="20" Background="GhostWhite" DockPanel.Dock="Right" Command="local:MainWindow.ClearResultCommand" ToolTip="Очистить результат" Margin="0,0,5,0" >
+                        <Button.Style>
+                            <Style>
+                                <Style.Triggers>
+                                    <Trigger Property="Button.IsEnabled" Value="True">
+                                        <Setter Property="Button.Content">
+                                            <Setter.Value>
+                                                <Image Source="Images\clearing.png" />
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                    <Trigger Property="Button.IsEnabled" Value="False">
+                                        <Setter Property="Button.Content">
+                                            <Setter.Value>
+                                                <Image Source="Images\clearing_gray.png" />
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
                     <!-- Выполнить -->
-                    <Button Width="20" Height="20" Background="GhostWhite" DockPanel.Dock="Right" Margin="0,0,5,0" Command="local:MainWindow.GetResultCommand" ToolTip="Получить данные" >
+                    <Button Width="20" Height="20" Background="GhostWhite" DockPanel.Dock="Left" Command="local:MainWindow.GetResultCommand" ToolTip="Получить данные" >
                         <Button.Style>
                             <Style>
                                 <Style.Triggers>

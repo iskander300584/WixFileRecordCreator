@@ -59,6 +59,14 @@ namespace WixFileRecordCreator
             get => clearDataCommand;
         }
 
+
+        // Очистить результат
+        private static RoutedUICommand clearResultCommand = new RoutedUICommand("ClearResultCommand", "ClearResultCommand", typeof(MainWindow));
+        public static RoutedUICommand ClearResultCommand
+        {
+            get => clearResultCommand;
+        }
+
         #endregion
 
 
@@ -75,7 +83,7 @@ namespace WixFileRecordCreator
         {
             InitializeComponent();
 
-            context = new MainDataContext();
+            context = new MainDataContext(this);
 
             this.DataContext = context;
         }
@@ -189,6 +197,24 @@ namespace WixFileRecordCreator
         private void ClearData_Execute(object sender, ExecutedRoutedEventArgs e)
         {
             context.ClearAll();
+        }
+
+
+        /// <summary>
+        /// Проверка возможности очистки результа
+        /// </summary>
+        private void ClearResult_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = (context != null && context.ResultText != "");
+        }
+
+
+        /// <summary>
+        /// Очистка результата
+        /// </summary>
+        private void ClearResult_Execute(object sender, ExecutedRoutedEventArgs e)
+        {
+            context.ClearResult();
         }
     }
 }

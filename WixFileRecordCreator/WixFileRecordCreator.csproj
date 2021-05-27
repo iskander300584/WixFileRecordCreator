@@ -121,5 +121,9 @@
   <ItemGroup>
     <Resource Include="application.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\clearing.png" />
+    <Resource Include="Images\clearing_gray.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

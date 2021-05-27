@@ -16,6 +16,16 @@ namespace WixFileRecordCreator.DataContexts
     {
         #region Поля класса
 
+        /// <summary>
+        /// Окно - владелец контекста
+        /// </summary>
+        private MainWindow window;
+
+        /// <summary>
+        /// Предыдущая выбранная папка
+        /// </summary>
+        private string _previousFolder = string.Empty;
+
         private string _folderName = string.Empty;
         /// <summary>
         /// Имя папки с файлами
@@ -295,6 +305,16 @@ namespace WixFileRecordCreator.DataContexts
         #endregion
 
 
+        /// <summary>
+        /// Контекст данных главного окна
+        /// </summary>
+        /// <param name="mainWindow">окно</param>
+        public MainDataContext(MainWindow mainWindow)
+        {
+            window = mainWindow;
+        }
+
+
         #region Методы
 
 
@@ -327,7 +347,9 @@ namespace WixFileRecordCreator.DataContexts
         {
             if(SelectedExtension != null && !AreExtensionsLocked)
             {
-                UsedExtensions.Remove(SelectedExtension);
+                while (window.listView.SelectedItems != null && window.listView.SelectedItems.Count > 0)
+                    UsedExtensions.Remove(window.listView.SelectedItems[0].ToString());
+
                 SelectedExtension = null;
             }
         }
@@ -364,7 +386,7 @@ namespace WixFileRecordCreator.DataContexts
         {
             System.Windows.Forms.FolderBrowserDialog folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog()
             {
-                SelectedPath = FolderName
+                SelectedPath = (FolderName != "") ? FolderName : _previousFolder
             };
 
             if (folderBrowserDialog.ShowDialog() != System.Windows.Forms.DialogResult.OK)
@@ -454,7 +476,7 @@ namespace WixFileRecordCreator.DataContexts
 
                 FileRecords.Add(fileRecord);
 
-                _text += fileRecord.ResultString + "\n";
+                _text += fileRecord.ResultString + "\n\n";
             }
 
             ResultText = _text.Trim();
@@ -462,10 +484,12 @@ namespace WixFileRecordCreator.DataContexts
 
 
         /// <summary>
-        /// Очистить данные
+        /// Очистить все данные
         /// </summary>
         public void ClearAll()
         {
+            _previousFolder = FolderName;
+
             FolderName = string.Empty;
             IdPrefix = string.Empty;
             UseIdPrefix = false;
@@ -482,6 +506,16 @@ namespace WixFileRecordCreator.DataContexts
                 SelectedExtension = null;
                 AddableExtension = string.Empty;
             }
+        }
+
+
+        /// <summary>
+        /// Очистить результат
+        /// </summary>
+        public void ClearResult()
+        {
+            FileRecords = new ObservableCollection<FileRecord>();
+            ResultText = string.Empty;
         }
 
         #endregion
